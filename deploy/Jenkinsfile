@@ -96,14 +96,14 @@ pipeline {
                     --auto-scaling-groups project03-auto-scaling \
                     --deployment-group-name project03-code-deploy \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --service-role-arn arn:aws:iam::257307634175:role/project00-code-deploy-service-role
+                    --service-role-arn arn:aws:iam::257307634175:role/project03-code-deploy-service-role
                     '''
                 echo "Codedeploy Workload"   
                 sh '''
                     aws deploy create-deployment --application-name project03 \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
                     --deployment-group-name project03-code-deploy \
-                    --s3-location bucket=project00-codeproject,bundleType=zip,key=deploy-1.0.zip
+                    --s3-location bucket=project03-codeproject,bundleType=zip,key=deploy-1.0.zip
                     '''
                     sleep(10) // sleep 10s
             }
