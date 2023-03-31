@@ -8,7 +8,7 @@ pipeline {
     environment {
         AWS_CREDENTIAL_NAME = "AWSCredentials"
         REGION = "ap-northeast-2"
-        DOCKER_IMAGE_NAME="project00-spring-petclinic"
+        DOCKER_IMAGE_NAME="project03-spring-petclinic"
         DOCKER_TAG="1.0"
         ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
         ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${DOCKER_IMAGE_NAME}"
@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Git clone') {
             steps {
-                git url: 'https://github.com/s4616/spring-petclinic.git', branch: 'main', credentialsId: 's4616'
+                git url: 'https://github.com/wansohaneul/project03.git', branch: 'main', credentialsId: 'wansohaneul'
             }
             post {
                 success {
@@ -78,7 +78,7 @@ pipeline {
                 echo "Upload to S3"
                 dir("${env.WORKSPACE}") {
                     sh 'zip -r deploy-1.0.zip ./deploy appspec.yml'
-                    sh 'aws s3 cp --region ap-northeast-2 --acl private ./deploy-1.0.zip s3://project00-codedeploy'
+                    sh 'aws s3 cp --region ap-northeast-2 --acl private ./deploy-1.0.zip s3://project03-codedeploy'
                     sh 'rm -rf ./deploy-1.0.zip'
                 }
             }
@@ -87,7 +87,7 @@ pipeline {
         stage('Codedeploy Workload') {
             steps {
                 echo "create application"
-                sh 'aws deploy create-application --application-name project00'
+                sh 'aws deploy create-application --application-name project03'
                
                 echo "create Codedeploy group"   
                 sh '''
@@ -100,10 +100,10 @@ pipeline {
                     '''
                 echo "Codedeploy Workload"   
                 sh '''
-                    aws deploy create-deployment --application-name project00 \
+                    aws deploy create-deployment --application-name project03 \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
                     --deployment-group-name project00-code-deploy \
-                    --s3-location bucket=project00-codeproject,bundleType=zip,key=deploy-1.0.zip
+                    --s3-location bucket=project03-codeproject,bundleType=zip,key=deploy-1.0.zip
                     '''
                     sleep(10) // sleep 10s
             }
