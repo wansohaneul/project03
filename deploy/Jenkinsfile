@@ -6,19 +6,19 @@ pipeline {
     }   
 
     environment {
-        AWS_CREDENTIAL_NAME = "AWSCredentials"
+        AWS_CREDENTIAL_NAME = "awsEcrCredential"
+        AWS_ACCOUNT_ID = "257307634175"
         REGION = "ap-northeast-2"
-        DOCKER_IMAGE_NAME="project03-spring-petclinic"
+        DOCKER_IMAGE_NAME="project00-spring-petclinic"
         DOCKER_TAG="1.0"
-        ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
+        ECR_REPOSITORY = "${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
         ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${DOCKER_IMAGE_NAME}"
         ECR_DOCKER_TAG = "${DOCKER_TAG}"
-    }
 
     stages {
         stage('Git clone') {
             steps {
-                git url: 'https://github.com/wansohaneul/project03.git', branch: 'main', credentialsId: 'wansohaneul'
+                git url: 'https://github.com/s4616/spring-petclinic.git', branch: 'main', credentialsId: 's4616'
             }
             post {
                 success {
@@ -78,7 +78,7 @@ pipeline {
                 echo "Upload to S3"
                 dir("${env.WORKSPACE}") {
                     sh 'zip -r deploy-1.0.zip ./deploy appspec.yml'
-                    sh 'aws s3 cp --region ap-northeast-2 --acl private ./deploy-1.0.zip s3://project03-code-deploy-s3'
+                    sh 'aws s3 cp --region ap-northeast-2 --acl private ./deploy-1.0.zip s3://project00-codedeploy'
                     sh 'rm -rf ./deploy-1.0.zip'
                 }
             }
@@ -87,23 +87,23 @@ pipeline {
         stage('Codedeploy Workload') {
             steps {
                 echo "create application"
-                sh 'aws deploy create-application --application-name project03'
+                sh 'aws deploy create-application --application-name project00'
                
                 echo "create Codedeploy group"   
                 sh '''
                     aws deploy create-deployment-group \
-                    --application-name project03 \
-                    --auto-scaling-groups project03-auto-scaling \
-                    --deployment-group-name project03-code-deploy \
+                    --application-name project00 \
+                    --auto-scaling-groups project00-auto-scaling \
+                    --deployment-group-name project00-code-deploy \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --service-role-arn arn:aws:iam::257307634175:role/project03-code-deploy-service-role
+                    --service-role-arn arn:aws:iam::257307634175:role/project00-code-deploy-service-role
                     '''
                 echo "Codedeploy Workload"   
                 sh '''
-                    aws deploy create-deployment --application-name project03 \
+                    aws deploy create-deployment --application-name project00 \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
-                    --deployment-group-name project03-code-deploy \
-                    --s3-location bucket=project03-code-deploy-s3,bundleType=zip,key=deploy-1.0.zip
+                    --deployment-group-name project00-code-deploy \
+                    --s3-location bucket=project00-codeproject,bundleType=zip,key=deploy-1.0.zip
                     '''
                     sleep(10) // sleep 10s
             }
