@@ -88,10 +88,10 @@ pipeline {
         stage('Codedeploy Workload') {
             steps {
                 echo "delete deployment"
-                sh 'aws deploy delete-application --application-name project00'
+                sh 'aws deploy delete-application --application-name project03'
                 
                 echo "create application"
-                sh 'aws deploy create-application --application-name project00'
+                sh 'aws deploy create-application --application-name project03'
                
                 echo "create Codedeploy group"   
                 sh '''
